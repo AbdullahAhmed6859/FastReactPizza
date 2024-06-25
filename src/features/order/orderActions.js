@@ -20,8 +20,8 @@ export async function createOrderAction({ request }) {
 
   if (Object.keys(errors).length > 0) return errors;
 
-  store.dispatch(orderPlaced());
   const { id } = await createOrder(order);
+  setTimeout(() => store.dispatch(orderPlaced()), 500);
   return redirect(`/order/${id}`);
 }
 
