@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, useActionData, useNavigation } from "react-router-dom";
 // import { createOrder} from "../../services/apiRestaurant";
 import Button from "../../ui/Button";
@@ -34,6 +34,15 @@ function CreateOrder() {
   const priorityPrice = withPriority ? totalCartPrice * 0.2 : 0;
   const totalPrice = totalCartPrice + priorityPrice;
 
+  useEffect(
+    function () {
+      if (isLoadingAddress === false) {
+        setAddress(geoAddress);
+      }
+    },
+    [geoAddress, isLoadingAddress],
+  );
+
   if (!cart.length) return <EmptyCart />;
 
   return (
@@ -67,7 +76,7 @@ function CreateOrder() {
           </div>
         </div>
 
-        <div className="relative mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
           <label className="sm:basis-40">Address</label>
           <div className="grow">
             <input
@@ -79,11 +88,6 @@ function CreateOrder() {
               required
               onChange={(e) => setAddress(e.target.value)}
             />
-            {addressStatus === "error" && (
-              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
-                {errorAddress}
-              </p>
-            )}
           </div>
 
           {address !== geoAddress ||
@@ -95,7 +99,6 @@ function CreateOrder() {
                 onClick={(e) => {
                   e.preventDefault();
                   dispatch(fetchAddress());
-                  setAddress(geoAddress);
                 }}
               >
                 Get position
@@ -103,6 +106,17 @@ function CreateOrder() {
             </span>
           ) : null}
         </div>
+
+        {addressStatus === "error" && (
+          <div className="mb-3 flex gap-2">
+            <div className="basis-40"></div>
+            <div className="flex grow justify-around">
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {errorAddress}
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="mb-12 flex items-center gap-5">
           <input
