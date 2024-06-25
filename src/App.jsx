@@ -1,18 +1,21 @@
+import { lazy, Suspense } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import AppLayout from "./ui/AppLayout";
 import Home from "./ui/Home";
 import Error from "./ui/Error";
-import Menu from "./features/menu/Menu";
+
+const Menu = lazy(() => import("./features/menu/Menu"));
+const Cart = lazy(() => import("./features/cart/Cart"));
+const CreateOrder = lazy(() => import("./features/order/CreateOrder"));
+const Order = lazy(() => import("./features/order/Order"));
+
 import menuLoader from "./features/menu/menuLoader";
-import Cart from "./features/cart/Cart";
-import Order from "./features/order/Order";
-import orderLoader from "./features/order/orderLoader";
-import CreateOrder from "./features/order/CreateOrder";
 import {
   createOrderAction,
   updatePriorityAction,
 } from "./features/order/orderActions";
-
+import orderLoader from "./features/order/orderLoader";
+import Loader from "./ui/Loader";
 const router = createBrowserRouter([
   {
     element: <AppLayout />,
@@ -21,20 +24,32 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       {
         path: "/menu",
-        element: <Menu />,
-        loader: menuLoader,
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Menu />
+          </Suspense>
+        ),
+        loader: menuLoader, // Assuming you have a loader function for menu data
         errorElement: <Error />,
       },
       { path: "/cart", element: <Cart /> },
       {
         path: "/order/new",
-        element: <CreateOrder />,
+        element: (
+          <Suspense fallback={<Loader />}>
+            <CreateOrder />
+          </Suspense>
+        ),
         action: createOrderAction,
       },
       {
         path: "/order/:orderId",
-        element: <Order />,
-        loader: orderLoader,
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Order />
+          </Suspense>
+        ),
+        loader: orderLoader, // Assuming you have a loader function for order data
         errorElement: <Error />,
         action: updatePriorityAction,
       },
@@ -43,7 +58,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <Suspense fallback={<Loader />}>
+      <RouterProvider router={router} />
+    </Suspense>
+  );
 }
 
 export default App;
