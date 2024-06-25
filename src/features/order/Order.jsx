@@ -8,7 +8,7 @@ import {
   formatDate,
 } from "../../utils/helpers";
 import OrderItem from "./OrderItem";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import UpdateOrder from "./UpdateOrder";
 
 function Order() {
@@ -32,7 +32,21 @@ function Order() {
     estimatedDelivery,
     cart,
   } = order;
-  const deliveryIn = calcMinutesLeft(estimatedDelivery);
+
+  const [deliveryIn, setDeliveryIn] = useState(
+    calcMinutesLeft(estimatedDelivery),
+  );
+
+  useEffect(
+    function () {
+      const minutesInterval = setInterval(
+        () => setDeliveryIn(calcMinutesLeft(estimatedDelivery)),
+        60001,
+      );
+      if (deliveryIn === 0) return () => clearInterval(minutesInterval);
+    },
+    [estimatedDelivery, deliveryIn],
+  );
 
   return (
     <div className="space-y-8 px-4 py-6">
@@ -53,8 +67,8 @@ function Order() {
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-stone-200 px-6 py-5">
         <p className="font-medium">
-          {deliveryIn >= 0
-            ? `Only ${calcMinutesLeft(estimatedDelivery)} minutes left 😃`
+          {deliveryIn > 0
+            ? `Only ${deliveryIn} minutes left 😃`
             : "Order should have arrived"}
         </p>
         <p className="text-xs text-stone-500">
@@ -88,7 +102,7 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
-      {!priority && <UpdateOrder order={order} />}
+      {!priority && deliveryIn > 0 && <UpdateOrder order={order} />}
     </div>
   );
 }

@@ -34,6 +34,5 @@ export async function updatePriorityAction({ params }) {
     const data = { priority: true };
     await updateOrder(params.orderId, data);
   }
-  console.log(params);
   return null;
 }
