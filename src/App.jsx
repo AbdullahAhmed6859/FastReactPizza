@@ -16,6 +16,16 @@ import {
 } from "./features/order/orderActions";
 import orderLoader from "./features/order/orderLoader";
 import Loader from "./ui/Loader";
+import store from "./store";
+import { saveState } from "./localStorage";
+
+store.subscribe(() => {
+  saveState({
+    cart: store.getState().cart,
+    user: store.getState().user,
+  });
+});
+
 const router = createBrowserRouter([
   {
     element: <AppLayout />,

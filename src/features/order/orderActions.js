@@ -3,6 +3,7 @@ import { redirect } from "react-router-dom";
 import { isValidPhone } from "../../utils/helpers";
 import store from "../../store";
 import { orderPlaced } from "../cart/cartSlice";
+import { updateInfo } from "../user/userSlice";
 
 export async function createOrderAction({ request }) {
   // const formData = await request.formData();
@@ -22,6 +23,7 @@ export async function createOrderAction({ request }) {
 
   const { id } = await createOrder(order);
   setTimeout(() => store.dispatch(orderPlaced()), 500);
+  store.dispatch(updateInfo({ address: data.address, name: data.customer }));
   return redirect(`/order/${id}`);
 }
 

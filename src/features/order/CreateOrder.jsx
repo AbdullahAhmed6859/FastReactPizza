@@ -15,9 +15,12 @@ function CreateOrder() {
     username,
     status: addressStatus,
     position,
-    address,
+    address: geoAddress,
     error: errorAddress,
   } = useSelector((state) => state.user);
+
+  const [address, setAddress] = useState(geoAddress);
+
   const isLoadingAddress = addressStatus === "loading";
 
   const navigation = useNavigation();
@@ -72,8 +75,9 @@ function CreateOrder() {
               type="text"
               name="address"
               disabled={isLoadingAddress}
-              defaultValue={address}
+              value={address}
               required
+              onChange={(e) => setAddress(e.target.value)}
             />
             {addressStatus === "error" && (
               <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
@@ -82,7 +86,8 @@ function CreateOrder() {
             )}
           </div>
 
-          {!position.latitude && !position.longitude && (
+          {address !== geoAddress ||
+          (!position.latitude && !position.longitude) ? (
             <span className="z-4 absolute right-0.5">
               <Button
                 disabled={isLoadingAddress}
@@ -90,12 +95,13 @@ function CreateOrder() {
                 onClick={(e) => {
                   e.preventDefault();
                   dispatch(fetchAddress());
+                  setAddress(geoAddress);
                 }}
               >
                 Get position
               </Button>
             </span>
-          )}
+          ) : null}
         </div>
 
         <div className="mb-12 flex items-center gap-5">

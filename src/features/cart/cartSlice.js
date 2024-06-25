@@ -1,6 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { loadState } from "../../localStorage";
 
-const initialState = {
+const persistedCart = loadState()?.cart;
+
+const initialState = persistedCart ?? {
   cart: [],
 };
 
