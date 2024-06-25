@@ -36,11 +36,11 @@ function CreateOrder() {
 
   useEffect(
     function () {
-      if (isLoadingAddress === false) {
+      if (isLoadingAddress === false && addressStatus !== "error") {
         setAddress(geoAddress);
       }
     },
-    [geoAddress, isLoadingAddress],
+    [geoAddress, isLoadingAddress, addressStatus],
   );
 
   if (!cart.length) return <EmptyCart />;
@@ -90,7 +90,8 @@ function CreateOrder() {
             />
           </div>
 
-          {address !== geoAddress ||
+          {addressStatus === "error" ||
+          address !== geoAddress ||
           (!position.latitude && !position.longitude) ? (
             <span className="z-4 absolute right-0.5">
               <Button
@@ -109,7 +110,7 @@ function CreateOrder() {
 
         {addressStatus === "error" && (
           <div className="mb-3 flex gap-2">
-            <div className="basis-40"></div>
+            <div className="sm: hidden sm:block sm:basis-40"></div>
             <div className="flex grow justify-around">
               <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
                 {errorAddress}
