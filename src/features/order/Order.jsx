@@ -8,20 +8,13 @@ import {
   formatDate,
 } from "../../utils/helpers";
 import OrderItem from "./OrderItem";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import UpdateOrder from "./UpdateOrder";
 
 function Order() {
   // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
   const order = useLoaderData();
   const fetcher = useFetcher();
-
-  useEffect(
-    function () {
-      if (!fetcher.data && fetcher.state === "idle") fetcher.load("/menu");
-    },
-    [fetcher],
-  );
 
   const {
     id,
@@ -37,15 +30,35 @@ function Order() {
     calcMinutesLeft(estimatedDelivery),
   );
 
+  const firstRender = useRef(true);
   useEffect(
     function () {
-      const minutesInterval = setInterval(
-        () => setDeliveryIn(calcMinutesLeft(estimatedDelivery)),
-        60001,
-      );
-      if (deliveryIn === 0) return () => clearInterval(minutesInterval);
+      if (firstRender.current)
+        setDeliveryIn(calcMinutesLeft(estimatedDelivery));
+      else firstRender.current = false;
     },
-    [estimatedDelivery, deliveryIn],
+    [estimatedDelivery],
+  );
+
+  useEffect(function () {
+    const minutesInterval = setInterval(() => {
+      const minutesLeft = calcMinutesLeft(estimatedDelivery);
+      setDeliveryIn(minutesLeft);
+
+      if (minutesLeft <= 0) {
+        clearInterval(minutesInterval);
+      }
+
+      // Cleanup function to clear the interval
+      return () => clearInterval(minutesInterval);
+    }, 60001);
+  });
+
+  useEffect(
+    function () {
+      if (!fetcher.data && fetcher.state === "idle") fetcher.load("/menu");
+    },
+    [fetcher],
   );
 
   return (
